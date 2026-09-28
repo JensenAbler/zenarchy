@@ -1,5 +1,200 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>zenarchy</title><link rel="stylesheet" href="style.css"></head>
-<body><main><h1>zenarchy</h1><p>Your new project starts here.</p></main></body>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>how we learned about zenarchy</title>
+<meta name="description" content="A music video in Xenolex tracing how we cracked the Zenarchy glyph.">
+<link rel="stylesheet" href="style.css">
+<script src="glyphs.js"></script>
+<script src="/portfolio-controls.js" defer></script>
+</head>
+<body>
+<div id="paper"></div><div id="bg"></div><div id="wrap"><div id="frame"></div><div id="cap" class="off"></div></div>
+<div id="bar"></div>
+<div id="hint"></div>
+<div class="over" id="start">
+  <div id="startglyph"></div>
+  <h1>how we learned about zenarchy</h1>
+  <p>a music video in xenolex, two and a half minutes. sound on (on iPhone, flip the silent switch off, since it mutes web audio). tap anywhere during playback to pause.</p>
+  <button id="go">play</button>
+</div>
+<div class="over" id="end">
+  <h1>go as far as you know</h1>
+  <p>glyphs traced from <i>The Xenolex: A Read Her</i> by Jade Ellipsis, used under CC BY-NC-SA 4.0. this remix is shared on the same terms.</p>
+  <button id="again">play again</button>
+</div>
+<script>
+const G=window.GLYPHS;
+const BPM=96,BEAT=60/BPM,BAR=BEAT*4,STEP=BEAT/4,TOTAL=58;
+const RM=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const cl=x=>Math.max(0,Math.min(1,x)),seg=(x,a,b)=>cl((x-a)/(b-a)),eo=t=>1-Math.pow(1-t,3);
+const F=document.getElementById('frame'),SC=[];
+
+/* ---------- scene helpers ---------- */
+function scene(a,b,o={}){const r=document.createElement('div');r.className='scene';F.appendChild(r);const s={a,b,r,hardIn:o.hardIn,hardOut:o.hardOut,upd:()=>{}};SC.push(s);return s}
+const COL={day:{ink:'#1c1714',red:'#c8324b',green:'#6ab04c'},night:{ink:'#f1ebdf',red:'#ef5a70',green:'#8fd46a'}};
+function glyph(k,mode){const g=G[k],v=document.createElementNS(NS,'svg');v.setAttribute('viewBox',`0 0 ${g.w} ${g.h}`);v.setAttribute('aria-hidden','true');
+g.L.forEach(L=>{const gr=document.createElementNS(NS,'g');gr.setAttribute('transform',L.t);const p=document.createElementNS(NS,'path');p.setAttribute('d',L.d);const c=COL[mode][L.c];p.setAttribute('fill',c);
+if(mode==='night'){p.setAttribute('stroke',c);p.setAttribute('stroke-width','3');p.setAttribute('stroke-linejoin','round')}gr.appendChild(p);v.appendChild(gr)});return v}
+function img(s,k,w){const night=k.endsWith('_n'),key=night?k.slice(0,-2):k,g=G[key],e=glyph(key,night?'night':'day');e.setAttribute('class','g');e.style.width=w+'%';e.style.height=(w*g.h/g.w)+'%';s.r.appendChild(e);return e}
+function txt(s,t,k,cls=''){const e=document.createElement('div');e.className='t '+cls;e.textContent=t;e.style.fontSize=`calc(var(--F)*${k})`;s.r.appendChild(e);return e}
+function ring(s){const e=document.createElement('div');e.className='ring';s.r.appendChild(e);return e}
+function P(e,x,y,o=1,sc=1,rot=0){e.style.left=x+'%';e.style.top=y+'%';e.style.opacity=o;e.style.transform=`translate(-50%,-50%) scale(${sc}) rotate(${rot}deg)`}
+function clip(e,c){e.style.clipPath=c;e.style.webkitClipPath=c}
+const NS='http://www.w3.org/2000/svg';
+function svgIn(parent,vb='0 0 100 100',par='none'){const v=document.createElementNS(NS,'svg');v.setAttribute('viewBox',vb);v.setAttribute('preserveAspectRatio',par);v.classList.add('ov');parent.appendChild(v);return v}
+function path(v,d,stroke,w){const p=document.createElementNS(NS,'path');p.setAttribute('d',d);p.setAttribute('fill','none');p.setAttribute('stroke',stroke);p.setAttribute('stroke-width',w);p.setAttribute('stroke-linecap','round');p.setAttribute('stroke-linejoin','round');v.appendChild(p);return p}
+let kickEnv=0;
+
+document.getElementById('startglyph').appendChild(glyph('title','day'));
+
+/* 1. cover: title + A READ HER */
+{const s=scene(0,4);const ti=img(s,'title',80);const rh=[img(s,'rh_a',15),img(s,'rh_read',27),img(s,'rh_her',19)];
+s.upd=l=>{const p=eo(seg(l,.1,1.8));P(ti,50,36,1,.96+.04*p);clip(ti,`inset(0 ${100-100*p}% 0 0)`);
+rh.forEach((e,i)=>{const q=eo(seg(l,2+i*.45,2.4+i*.45));P(e,[23,50,77][i],78,q,.8+.2*q)})}}
+
+/* 2. four out of ten / in the beginning */
+{const s=scene(4,8);const four=txt(s,'4',.34,'num'),ten=txt(s,'/10',.11,'num'),beg=img(s,'beginning',92);
+s.upd=l=>{const a=eo(seg(l,.2,.7));P(four,44,34,a,.7+.3*a);P(ten,63,42,seg(l,.9,1.3));const p=eo(seg(l,2.2,3.6));P(beg,50,76);clip(beg,`inset(0 ${100-100*p}% 0 0)`)}}
+
+/* 3. the zooper line, read like a cipher */
+{const s=scene(8,12);const z=img(s,'zooper',170),q1=txt(s,'?',.16,'red num'),q2=txt(s,'?',.16,'red num');
+s.upd=(l,b)=>{const x=100-20*l;P(z,x,52);const j=RM?0:Math.sin(b*40)*.6;P(q1,x-56+j,30,seg(l,1.3,1.6));P(q2,x+1.7-j,30,seg(l,2.3,2.6))}}
+
+/* 4. incubation: o o o */
+{const s=scene(12,16);const z=img(s,'zooper',96);const dots=[ring(s),ring(s),ring(s)];
+s.upd=(l,b)=>{const c=seg(l,2.4,3.2);z.style.filter=`blur(${((1-c)*4).toFixed(2)}px)`;P(z,50,34,.3+.7*c);
+dots.forEach((d,i)=>P(d,38+12*i,64,(.2+.8*Math.max(0,Math.sin((b*4-i)*Math.PI/2)))*(1-.7*c)))}}
+
+/* 5. the ark, poly readings, GAFAUK */
+{const s=scene(16,24);const ark=img(s,'ark',56);const words=['ark','womb','lyre'].map(w=>txt(s,w,.08,'it'));
+const zn=img(s,'gZN',11),ki=img(s,'ki',6);const L='gafauk'.split('').map(c=>txt(s,c,.1,'red lt'));
+const pos=[[11,22],[20,44],[50,23],[80,44],[50,79],[90,22]];const wp=[[17,26],[83,30],[50,88]];
+s.upd=l=>{const p=eo(seg(l,0,1.6));P(ark,50,50);clip(ark,`inset(${100-100*p}% 0 0 0)`);
+words.forEach((w,i)=>P(w,wp[i][0],wp[i][1],seg(l,2.4+i*.35,2.7+i*.35)*(1-seg(l,3.7,4))));
+const c=eo(seg(l,4,4.4));P(zn,22,22,c,.6+.4*c);P(ki,79,22,eo(seg(l,4.1,4.5)));
+L.forEach((e,i)=>{const t0=4.6+i*.35,o=seg(l,t0,t0+.2),m=eo(seg(l,7,7.6));P(e,pos[i][0]+(25+10*i-pos[i][0])*m,pos[i][1]+(92-pos[i][1])*m,o,1+.4*(1-seg(l,t0,t0+.4)))})}}
+
+/* 6. a box is two brackets: CODEX */
+{const s=scene(24,28);const c=img(s,'c',20),d=img(s,'d',20),cx=img(s,'codex',40);
+const lc=txt(s,'c',.07,'it'),ld=txt(s,'d',.07,'it'),lo=txt(s,'o',.07,'it'),le=txt(s,'e',.07,'it'),lx=txt(s,'x',.07,'it red'),w=txt(s,'codex',.13,'word');
+s.upd=l=>{const p=eo(seg(l,.4,1.6)),f=1-seg(l,2,2.4),fl=1-seg(l,1.2,1.6);P(c,30+14*p,44,f);P(d,70-14*p,44,f);P(lc,30+14*p,63,fl);P(ld,70-14*p,63,fl);
+const k=seg(l,1.9,2.4);P(cx,50,44,k,.9+.1*k);P(lo,50,15,seg(l,2.4,2.6));P(le,50,73,seg(l,2.6,2.8));P(lx,75,44,seg(l,2.8,3));P(w,50,89,seg(l,3.2,3.5))}}
+
+/* 7. read her -> her-mes -> th? */
+{const s=scene(28,32);const rh=[img(s,'rh_a',15),img(s,'rh_read',27),img(s,'rh_her',19)],he=img(s,'hermes',34),th=img(s,'thoth',22),lab=txt(s,'th?',.08,'it red');
+s.upd=l=>{const d=seg(l,1,1.5);rh.forEach((e,i)=>P(e,[23,50,77][i],30,i<2?1-.75*d:1,i==2?1+.2*d:1));P(he,63,70,eo(seg(l,1.8,2.3)));P(th,26,70,eo(seg(l,3,3.3)));P(lab,26,90,seg(l,3.3,3.5))}}
+
+/* 8. the syllabary line and its unglossed bottom row */
+{const s=scene(32,36,{hardOut:1});const top=[['zn',13,12],['ark',26,35],['ki',4.5,51],['thoth',12,64],['hermes',19,84]].map(([k,w,x])=>({e:img(s,k,w),x}));
+const bot=[['gZN',8,12],['gARK',15,35],['gKI',7.5,51]].map(([k,w,x])=>({e:img(s,k,w),x}));
+const v=svgIn(s.r);const ln=bot.map(t=>{const p=path(v,`M${t.x} 58 L${t.x} 44`,'#c8324b',.6);p.setAttribute('stroke-dasharray','14');p.setAttribute('stroke-dashoffset','14');p.setAttribute('vector-effect','non-scaling-stroke');p.style.strokeWidth='2px';return p});
+s.upd=l=>{const hit=l>=3;top.forEach(t=>P(t.e,t.x,34,hit?.12:1));bot.forEach((t,i)=>P(t.e,t.x,66,seg(l,.9+i*.3,1.2+i*.3),hit?1.18:1));
+ln.forEach((p,i)=>p.setAttribute('stroke-dashoffset',(14*(1-eo(seg(l,2+i*.2,2.6+i*.2)))).toFixed(2)))}}
+
+/* 9. the drop: Z over N, ZN-ARK-KI, ZENARCHY */
+{const s=scene(36,44,{hardIn:1});
+const box=document.createElement('div');box.className='t';box.style.lineHeight='0';box.style.width='60%';box.style.height='60%';s.r.appendChild(box);
+const v=svgIn(box,'0 0 100 100','xMidYMid meet');const gz=document.createElementNS(NS,'g'),gn=document.createElementNS(NS,'g');v.appendChild(gz);v.appendChild(gn);
+path(gz,'M22 22 H78 L22 78 H78','#f1ebdf',7);path(gn,'M22 78 V22 L78 78 V22','#ef5a70',7);
+const lz=txt(s,'z',.1,'lt'),ln_=txt(s,'n',.1,'lt red');
+const ark=img(s,'ark_n',36),ki=img(s,'ki_n',7.5),lab=['zn','ark','ki'].map(t=>txt(s,t,.09,'lt'));
+const Ls='zenarchy'.split('').map(c=>txt(s,c.toUpperCase(),.13,'big lt'));
+const ark2=img(s,'ark_n',50),zn2=img(s,'gZN_n',14),ki2=img(s,'ki_n',8);
+s.upd=(l,b)=>{const p=eo(seg(l,.1,1.3));gz.setAttribute('transform',`translate(${-45*(1-p)} 0)`);gn.setAttribute('transform',`translate(${45*(1-p)} 0)`);
+const m=eo(seg(l,2,2.5)),row=1-seg(l,4,4.4);P(box,50-31*m,40,row,1-.6*m);P(lz,22,86,seg(l,.2,.5)*(1-seg(l,1.2,1.5)));P(ln_,78,86,seg(l,.2,.5)*(1-seg(l,1.2,1.5)));
+P(ark,52,40,seg(l,2.5,2.8)*row);P(ki,84,40,seg(l,3,3.3)*row);lab.forEach((e,i)=>P(e,[19,52,84][i],64,seg(l,2.2+i*.5,2.5+i*.5)*row));
+const m2=eo(seg(l,6,6.6));Ls.forEach((e,i)=>{const t0=4+i*.25,x=15+10*i;P(e,50+(x-50)*(1-.2*m2),50+39*m2,seg(l,t0,t0+.1),(1-.3*m2)*(1+.5*(1-seg(l,t0,t0+.2))))});
+const sg=seg(l,6.2,6.8),pu=1+(RM?0:.03*kickEnv);P(ark2,50,46,sg,pu);P(zn2,18,17,seg(l,6.5,6.9),pu);P(ki2,83,17,seg(l,6.7,7.1),pu)}}
+
+/* 10. thoth-hermes */
+{const s=scene(44,48);const th=img(s,'thoth_n',30),he=img(s,'hermes_n',46),l1=txt(s,'thoth',.09,'lt'),l2=txt(s,'hermes',.09,'lt'),hy=txt(s,'thoth-hermes',.1,'lt');
+s.upd=l=>{const m=eo(seg(l,2.5,3.3));P(th,24+4*m,42,eo(seg(l,.2,.7)));P(he,70-3*m,42,eo(seg(l,1,1.5)));const o=seg(l,1.5,1.8);
+const mo=1-seg(l,2.8,3);P(l1,24,74,o*mo);P(l2,70,74,o*mo);P(hy,50,74,seg(l,3,3.3))}}
+
+/* 11. hail eris, fnord, 23 */
+{const s=scene(48,52);const er=img(s,'fish_n',60),h1=txt(s,'hail eris!',.1,'lt'),h2=txt(s,'all hail discordia!',.075,'it'),n23=txt(s,'23',.28,'num red'),fn=[0,1,2,3,4].map(()=>txt(s,'fnord',.055,'it'));
+s.upd=(l,b)=>{P(h1,50,52,eo(seg(l,.3,.7)));P(h2,50,64,eo(seg(l,.7,1.1)));P(er,50,80,eo(seg(l,1.1,1.5)));const st=Math.floor(b*4);P(n23,50,24,l>2&&!RM?((st*7919)%3?1:.15):seg(l,1.5,2));
+fn.forEach((e,i)=>{const h=(Math.floor(b*2)*31+i*17)%100;P(e,12+(h*7)%76,(i%2)?6+(h*3)%8:91,l>3&&(RM||(st+i)%3==0)?.85:0)})}}
+
+/* 12. outro: the Z in the circle */
+{const s=scene(52,58);const zc=img(s,'zcircle',56);s.upd=l=>P(zc,50,47,eo(seg(l,0,1.5))*(1-seg(l,5.2,6)),1,RM?0:l*5)}
+
+/* ---------- captions ---------- */
+const CAPS=[[.6,'a read her.'],[2.3,'recipes for thought crime'],
+[4,'rate your understanding, one to ten'],[5.5,'call it a four. an honest four.'],[6.5,'in the beginning was the word'],
+[8,'then the long line at the bottom of the page'],[9.3,'zooper… something… phrase?'],[10.3,'stuck on the star, stuck on the check'],[11.2,'reading it like a cipher. it isn’t one.'],
+[12,'some lines you grind on for years'],[13.3,'some you never even wanted'],[14.3,'then one day you look and it’s just there'],[15.2,'come back sideways'],
+[16,'a vessel on the syllabary page'],[17.3,'everyone aboard the boat'],[18.4,'ark? womb? lyre?'],[19.3,'and the corners wouldn’t sit still'],
+[20,'x is a g. the square’s an o.'],[21.3,'the trident’s an f. it always was.'],[22.4,'g, a, f, a, u, k'],[23.2,'go as far as you know'],
+[24,'a box isn’t one letter'],[25,'it’s two brackets, facing'],[26,'c into d. a dot for o. three for e.'],[27.2,'red x. codex.'],
+[28,'the cover said it plainly: read her'],[29.4,'her, then mes'],[30.3,'hermes, god of the crossing'],[31.2,'but what’s the th doing there?'],
+[32,'the bottom row. no gloss.'],[33,'a box, then rak, then xi'],[34,'rak… that could be ark—'],[35,'oh fuck. that’s it.','hit'],
+[36,'the bottom row is the gloss'],[37.3,'the box is z laid over n'],[38.4,'zn, ark, ki'],[40,''],[42,'zen, ark, ki, compacted into one sigil'],[43,'sitting in your head for years'],
+[44,'the red t is t, o, t'],[45.3,'add the h: thoth'],[46.3,'thoth-hermes. the god of writing, twice.'],[47.3,'a firmware update for the symbolic order'],
+[48,'and zenarchy is kerry thornley’s word'],[49.3,'one of the two who dreamed up discordia'],[50.4,'hail eris'],[51.3,'fnord'],
+[52,'so now you’re reading the book'],[53.3,'beat meant beaten down'],[54.4,'and beatific, if you ask kerouac'],[55.5,'go as far as you know']];
+const cap=document.getElementById('cap');let capI=-1;
+function setCap(b){let i=-1;for(let k=0;k<CAPS.length;k++)if(b>=CAPS[k][0])i=k;if(i===capI)return;capI=i;
+cap.classList.add('off');const c=CAPS[i];setTimeout(()=>{cap.textContent=c?c[1]:'';cap.classList.toggle('hit',!!(c&&c[2]));if(c&&c[1])cap.classList.remove('off')},c&&c[2]?0:180)}
+
+/* ---------- audio ---------- */
+let AC,master,rev,dly,NB;
+function initAudio(){AC=new(window.AudioContext||window.webkitAudioContext)();master=AC.createGain();master.gain.value=.55;
+const comp=AC.createDynamicsCompressor();comp.threshold.value=-14;comp.ratio.value=4;master.connect(comp);comp.connect(AC.destination);
+rev=AC.createConvolver();const n=AC.sampleRate*2.8|0,ir=AC.createBuffer(2,n,AC.sampleRate);for(let c=0;c<2;c++){const d=ir.getChannelData(c);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,3)}
+rev.buffer=ir;const rg=AC.createGain();rg.gain.value=.4;rev.connect(rg);rg.connect(master);
+dly=AC.createDelay(1);dly.delayTime.value=BEAT*.75;const fb=AC.createGain();fb.gain.value=.33;const dg=AC.createGain();dg.gain.value=.28;dly.connect(fb);fb.connect(dly);dly.connect(dg);dg.connect(master);
+NB=AC.createBuffer(1,AC.sampleRate*2,AC.sampleRate);const nd=NB.getChannelData(0);for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1}
+const mtof=m=>440*Math.pow(2,(m-69)/12);
+function kick(t,v=1){const o=AC.createOscillator(),g=AC.createGain();o.frequency.setValueAtTime(145,t);o.frequency.exponentialRampToValueAtTime(42,t+.12);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+.38);o.connect(g);g.connect(master);o.start(t);o.stop(t+.42)}
+function noise(t,dur,type,f,q,v,dest=master,loop=false){const s=AC.createBufferSource();s.buffer=NB;s.loop=loop;const fl=AC.createBiquadFilter();fl.type=type;fl.frequency.value=f;fl.Q.value=q;const g=AC.createGain();g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);s.connect(fl);fl.connect(g);g.connect(dest);s.start(t);s.stop(t+dur+.05);return{g,fl}}
+const hat=(t,v=1,open=false)=>noise(t,open?.22:.045,'highpass',7800,.7,.16*v);
+function snare(t,v=1){noise(t,.2,'bandpass',1900,.8,.32*v);noise(t,.25,'bandpass',1900,.8,.12*v,rev);const o=AC.createOscillator(),g=AC.createGain();o.type='triangle';o.frequency.setValueAtTime(190,t);g.gain.setValueAtTime(.18*v,t);g.gain.exponentialRampToValueAtTime(.001,t+.1);o.connect(g);g.connect(master);o.start(t);o.stop(t+.12)}
+function crash(t,v=1){noise(t,2.4,'highpass',3800,.5,.22*v);noise(t,2.8,'highpass',3000,.5,.12*v,rev)}
+function bass(t,m,dur,v=1){const o=AC.createOscillator(),f=AC.createBiquadFilter(),g=AC.createGain();o.type='sawtooth';o.frequency.value=mtof(m);f.type='lowpass';f.Q.value=5;f.frequency.setValueAtTime(950,t);f.frequency.exponentialRampToValueAtTime(220,t+dur);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.2*v,t+.01);g.gain.exponentialRampToValueAtTime(.001,t+dur);o.connect(f);f.connect(g);g.connect(master);o.start(t);o.stop(t+dur+.02)}
+function pad(t,notes,dur,v=.04){const f=AC.createBiquadFilter();f.type='lowpass';f.frequency.value=1100;const g=AC.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.5);g.gain.setValueAtTime(v,t+dur-.2);g.gain.linearRampToValueAtTime(0,t+dur+.5);f.connect(g);g.connect(master);g.connect(rev);
+notes.forEach(m=>[-8,8].forEach(dt=>{const o=AC.createOscillator();o.type='sawtooth';o.frequency.value=mtof(m);o.detune.value=dt;o.connect(f);o.start(t);o.stop(t+dur+.6)}))}
+function pluck(t,m,v=.06){const o=AC.createOscillator(),f=AC.createBiquadFilter(),g=AC.createGain();o.type='square';o.frequency.value=mtof(m);f.type='lowpass';f.frequency.setValueAtTime(2800,t);f.frequency.exponentialRampToValueAtTime(380,t+.2);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+.26);o.connect(f);f.connect(g);g.connect(master);g.connect(dly);o.start(t);o.stop(t+.3)}
+function riser(t,dur){const r=noise(t,dur+.05,'bandpass',200,2,.001,master,true);r.g.gain.cancelScheduledValues(t);r.g.gain.setValueAtTime(.001,t);r.g.gain.exponentialRampToValueAtTime(.28,t+dur);r.g.gain.linearRampToValueAtTime(0,t+dur+.04);r.fl.frequency.setValueAtTime(200,t);r.fl.frequency.exponentialRampToValueAtTime(6500,t+dur)}
+function sub(t){const o=AC.createOscillator(),g=AC.createGain();o.frequency.setValueAtTime(58,t);o.frequency.exponentialRampToValueAtTime(36,t+1.6);g.gain.setValueAtTime(.55,t);g.gain.exponentialRampToValueAtTime(.001,t+2.2);o.connect(g);g.connect(master);o.start(t);o.stop(t+2.3)}
+
+const V=[[50,53,57,62],[46,50,53,57],[43,50,55,58],[45,49,52,57]],VR=[38,34,31,33];
+const D=[[50,53,57,62],[46,50,53,58],[41,48,53,57],[48,52,55,60]],DR=[38,34,41,36];
+const inR=(b,a,z)=>b>=a&&b<=z;
+function chord(b){if(b>=56)return[V[0],VR[0]];return b>=36&&b<52?[D[b%4],DR[b%4]]:[V[b%4],VR[b%4]]}
+const ARP=[0,1,2,3,2,1,2,3];
+function step(i,t){const b=Math.floor(i/16),s=i%16;if(b===35)return;const[ch,r]=chord(b);const drop=b>=36&&b<52;
+if(s===0){if(b<56)pad(t,ch,BAR,drop?.06:.04);else if(b===56)pad(t,ch,BAR*2,.04)}
+if((inR(b,12,15)&&(s===0||s===8))||((inR(b,16,34)||drop)&&s%4===0))kick(t,drop?1.1:(b===34&&s>=8?.5:.75));
+if(inR(b,8,34)&&s%4===2)hat(t,.8);if(inR(b,16,34)&&s%4===0)hat(t,.35);
+if(drop){hat(t,s%4===2?1:.4,s%4===2)}if(inR(b,52,55)&&s%8===4)hat(t,.4);
+if(drop&&(s===4||s===12))snare(t);
+if(b===32&&s%4===0)snare(t,.35);if(b===33&&s%2===0)snare(t,.5);if(b===34)snare(t,.3+.5*s/15);
+if((inR(b,16,34)||drop)&&s%2===0)bass(t,r+(drop&&s%4===2?12:0),STEP*1.7,drop?1.2:.75);
+if((inR(b,24,31)&&s%2===0)||((drop||inR(b,52,55))&&(drop||s%2===0)))pluck(t,ch[ARP[s%8]]+12,drop?.05:.045);
+if(b===32&&s===0)riser(t,BAR*3);
+if(b===36&&s===0){crash(t);sub(t)}if(b===52&&s===0)crash(t,.5)}
+
+/* ---------- engine ---------- */
+let t0=0,nextStep=0,nextTime=0,timer=null,playing=false,paused=false;
+function scheduler(){while(nextTime<AC.currentTime+.15&&nextStep<TOTAL*16){step(nextStep,nextTime);nextStep++;nextTime+=STEP}}
+const BG=document.getElementById('bg'),WR=document.getElementById('wrap');let isDark=null;const barEl=document.getElementById('bar'),hint=document.getElementById('hint');
+function frame(){if(!playing)return;const t=AC.currentTime-t0,b=t/BAR;
+const bi=Math.floor(b),drums=inR(bi,12,34)||(bi>=36&&bi<52);kickEnv=drums?Math.exp(-((b*4)%1)*5):0;
+const nt=b<36?0:b<52?1:1-seg(b,52,52.35);BG.style.opacity=nt;const dark=nt>.5;if(dark!==isDark){isDark=dark;WR.style.color=dark?'#f1ebdf':'#1c1714';document.body.classList.toggle('night',dark)}
+F.style.transform=RM?'':`scale(${1+.01*kickEnv})`;
+for(const s of SC){const on=b>=s.a&&b<s.b;if(!on){s.r.style.opacity=0;continue}const l=b-s.a;
+const fi=s.hardIn?1:seg(l,0,.2),fo=s.hardOut?1:1-seg(b,s.b-.2,s.b);s.r.style.opacity=Math.min(fi,fo);s.upd(l,b)}
+setCap(b);barEl.style.width=(100*Math.min(1,b/TOTAL))+'%';
+if(b>=TOTAL+.3){finish();return}requestAnimationFrame(frame)}
+function begin(){nextStep=0;nextTime=AC.currentTime+.12;t0=nextTime;capI=-2;playing=true;paused=false;
+clearInterval(timer);timer=setInterval(scheduler,25);scheduler();requestAnimationFrame(frame)}
+function finish(){playing=false;clearInterval(timer);BG.style.opacity=0;WR.style.color='#1c1714';isDark=false;document.body.classList.remove('night');document.getElementById('end').style.display='flex';document.getElementById('again').focus()}
+document.getElementById('go').onclick=e=>{e.stopPropagation();if(!AC)initAudio();AC.resume();document.getElementById('start').style.display='none';begin()};
+document.getElementById('again').onclick=e=>{e.stopPropagation();document.getElementById('end').style.display='none';AC.resume();begin()};
+document.getElementById('wrap').onclick=()=>{if(!playing)return;if(paused){AC.resume();paused=false;hint.textContent=''}else{AC.suspend();paused=true;hint.textContent='paused. tap to resume'}};
+</script>
+</body>
 </html>
